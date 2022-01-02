@@ -30,6 +30,10 @@
 		}
 		#current-palette.green-palette > button:nth-child(4n) {
 			background: #9bbc0f;
+			/*background: #d1fb1f;*/
+		}
+		.selected {
+			border: 2px solid #f00;
 		}
 	</style>
 </head>
@@ -62,24 +66,32 @@
 					<div>
 						<p class="text-white">Palette</p>
 						<div class="btn-group w-100 green-palette" id="current-palette">
-							<button type="button" data-color="4" class="color btn">&nbsp;</button>
 							<button type="button" data-color="3" class="color btn">&nbsp;</button>
 							<button type="button" data-color="2" class="color btn">&nbsp;</button>
 							<button type="button" data-color="1" class="color btn">&nbsp;</button>
+							<button type="button" data-color="0" class="color btn">&nbsp;</button>
 						</div>
 					</div><br><br>
 					<div>
 						<p class="text-white">Tools</p>
 						<div class="btn-group w-100">
-							<button type="button" data-tool="pixel" class="btn tool btn-primary"><i class="bi bi-pencil"></i></button>
-							<button type="button" data-tool="fill" class="btn tool btn-info"><i class="bi bi-paint-bucket"></i></button>
-							<button type="button" data-tool="delete" class="btn tool btn-danger"><i class="bi bi-x-circle"></i></button>
+							<input type="radio" class="btn-check tool" data-tool="pixel" name="tool" id="tool_pixel" autocomplete="off" checked>
+							<label class="btn btn-outline-primary" for="tool_pixel"><i class="bi bi-pencil"></i></label>
+
+							<input type="radio" class="btn-check tool" data-tool="fill" name="tool" id="tool_fill" autocomplete="off">
+							<label class="btn btn-outline-primary" for="tool_fill"><i class="bi bi-paint-bucket"></i></label>
+
+							<input type="radio" class="btn-check tool" data-tool="delete" name="tool" id="tool_delete" autocomplete="off">
+							<label class="btn btn-outline-primary" for="tool_delete"><i class="bi bi-x-circle"></i></label>
 						</div>
 					</div><br><br>
 
+					<button type="button" class="btn btn-success" id="btn-add-export">Export</button><br><br>
+					<button type="button" class="btn btn-info" id="btn-add-import">Import</button><br><br>
+
 
 				</div>
-				<div id="canvas-container" class="col-10 bg-secondary p-5 justify-content-center">
+				<div id="canvas-container" class="col-10 bg-secondary p-5 justify-content-center" onselectstart="return false">
 				</div>
 			</div>
 		</div>
@@ -90,15 +102,26 @@
 <script>
 	let selectedColor = 4;
 	let selectedTool = 'pixel';
+	let currentPalette = {};
 	$(document).ready(function() {
+		function colorRefresh() {
+			$('.square').each(function() {
+				let color = $(this).data('color') !== undefined ? $(this).data('color') : 0;
+				let bg = $(`.color[data-color=${color}]`).css('background');
+				$(this).data('color', selectedColor).css('background', bg).data('color', color);
+			});
+		}
+
 		$('#btn-add-tile').click(function() {
 			let tileHtml = $(`
-				<div class="tile"><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div>
+				<div class="tile"><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div>
 				</div>
 			`);
 			tileHtml.appendTo('#canvas-container');
 			$('#pixel-size-select').change();
+			colorRefresh();
 		});
+
 		$('#pixel-size-select').change(function() {
 			let size = $(this).val();
 			$('.square').css('width', size).css('height', size);
@@ -109,19 +132,19 @@
 			selectedTool = selectedTool == 'delete' ? 'pixel' : selectedTool;
 		});
 
-		$('.tool').click(function() {
-			selectedTool = $(this).data('tool');
+		$('.tool').change(function() {
+			selectedTool = $('.tool:checked').data('tool');
 		});
 
 		$('body').on('click', '.square', function() {
 			let bg = $(`.color[data-color=${selectedColor}]`).css('background');
 			switch(selectedTool) {
 				case 'pixel':
-					$(this).data('color', selectedColor).css('background', bg);
+					$(this).data('color', selectedColor).css('background', bg).data('color', selectedColor);
 					break;
 				case 'fill':
 					$(this).closest('.tile').find('.square').each(function() {
-						$(this).data('color', selectedColor).css('background', bg);
+						$(this).data('color', selectedColor).css('background', bg).data('color', selectedColor);
 					});
 					break;
 				case 'delete':
@@ -129,7 +152,29 @@
 					break;
 			}
 		});
+
+		$('body').on('mouseover', '.square', function() {
+			let bg = $(`.color[data-color=${selectedColor}]`).css('background');
+			if(leftMouseButtonIsPressed) {
+				switch(selectedTool) {
+					case 'pixel':
+						$(this).data('color', selectedColor).css('background', bg).data('color', selectedColor);
+						break;
+				}
+			}
+		});
 	});
+	
+	var leftMouseButtonIsPressed = false;
+
+	function setLeftButtonState(e) {
+	  leftMouseButtonIsPressed = e.buttons === undefined ? e.which === 1 : e.buttons === 1;
+	  //safari checks which instead of buttons
+	}
+
+	document.body.onmousedown = setLeftButtonState;
+	document.body.onmousemove = setLeftButtonState;
+	document.body.onmouseup = setLeftButtonState;
 </script>
 </body>
 </html>
