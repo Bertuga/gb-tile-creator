@@ -20,16 +20,19 @@
 			border: 1px solid #f00;
 		}
 		#current-palette.green-palette > button:nth-child(1n) {
-			background: #0f380f;
+			background: #081820;
 		}
 		#current-palette.green-palette > button:nth-child(2n) {
-			background: #306230;
+			background: #346856;
 		}
 		#current-palette.green-palette > button:nth-child(3n) {
-			background: #8bac0f;
+			background: #88c070;
 		}
 		#current-palette.green-palette > button:nth-child(4n) {
-			background: #9bbc0f;
+			background: #e0f8d0;
+		}
+		.selected {
+			border: 2px solid #f00;
 		}
 	</style>
 </head>
@@ -62,74 +65,164 @@
 					<div>
 						<p class="text-white">Palette</p>
 						<div class="btn-group w-100 green-palette" id="current-palette">
-							<button type="button" data-color="4" class="color btn">&nbsp;</button>
 							<button type="button" data-color="3" class="color btn">&nbsp;</button>
 							<button type="button" data-color="2" class="color btn">&nbsp;</button>
 							<button type="button" data-color="1" class="color btn">&nbsp;</button>
+							<button type="button" data-color="0" class="color btn">&nbsp;</button>
 						</div>
 					</div><br><br>
 					<div>
 						<p class="text-white">Tools</p>
 						<div class="btn-group w-100">
-							<button type="button" data-tool="pixel" class="btn tool btn-primary"><i class="bi bi-pencil"></i></button>
-							<button type="button" data-tool="fill" class="btn tool btn-info"><i class="bi bi-paint-bucket"></i></button>
-							<button type="button" data-tool="delete" class="btn tool btn-danger"><i class="bi bi-x-circle"></i></button>
+							<input type="radio" class="btn-check tool" data-tool="pixel" name="tool" id="tool_pixel" autocomplete="off" checked>
+							<label class="btn btn-outline-primary" for="tool_pixel"><i class="bi bi-pencil"></i></label>
+
+							<input type="radio" class="btn-check tool" data-tool="fill" name="tool" id="tool_fill" autocomplete="off">
+							<label class="btn btn-outline-primary" for="tool_fill"><i class="bi bi-paint-bucket"></i></label>
+
+							<input type="radio" class="btn-check tool" data-tool="delete" name="tool" id="tool_delete" autocomplete="off">
+							<label class="btn btn-outline-primary" for="tool_delete"><i class="bi bi-x-circle"></i></label>
 						</div>
 					</div><br><br>
 
+					<button type="button" class="btn btn-success" id="btn-export">Export</button><br><br>
+					<button type="button" class="btn btn-info" id="btn-import">Import</button><br><br>
+
 
 				</div>
-				<div id="canvas-container" class="col-10 bg-secondary p-5 justify-content-center">
+				<div id="canvas-container" class="col-10 bg-secondary p-5 justify-content-center" onselectstart="return false">
 				</div>
 			</div>
 		</div>
 	</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
-<script>
-	let selectedColor = 4;
-	let selectedTool = 'pixel';
-	$(document).ready(function() {
-		$('#btn-add-tile').click(function() {
-			let tileHtml = $(`
-				<div class="tile"><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div><div class="d-flex line justify-content-center"><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div><div class="square"></div></div>
+	<div class="modal" id="modalExport" tabindex="-1">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Export</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-			`);
-			tileHtml.appendTo('#canvas-container');
-			$('#pixel-size-select').change();
-		});
-		$('#pixel-size-select').change(function() {
-			let size = $(this).val();
-			$('.square').css('width', size).css('height', size);
-		});
+				<div class="modal-body">
+					<p>ASM:</p>
+					<code></code>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
-		$('.color').click(function() {
-			selectedColor = $(this).data('color');
-			selectedTool = selectedTool == 'delete' ? 'pixel' : selectedTool;
-		});
-
-		$('.tool').click(function() {
-			selectedTool = $(this).data('tool');
-		});
-
-		$('body').on('click', '.square', function() {
-			let bg = $(`.color[data-color=${selectedColor}]`).css('background');
-			switch(selectedTool) {
-				case 'pixel':
-					$(this).data('color', selectedColor).css('background', bg);
-					break;
-				case 'fill':
-					$(this).closest('.tile').find('.square').each(function() {
-						$(this).data('color', selectedColor).css('background', bg);
-					});
-					break;
-				case 'delete':
-					$(this).closest('.tile').remove();
-					break;
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+	<script>
+		let selectedColor = 4;
+		let selectedTool = 'pixel';
+		let currentPalette = {};
+		$(document).ready(function() {
+			function colorRefresh() {
+				$('.square').each(function() {
+					let color = $(this).data('color') !== undefined ? $(this).data('color') : 0;
+					let bg = $(`.color[data-color=${color}]`).css('background');
+					$(this).data('color', selectedColor).css('background', bg).data('color', color);
+				});
 			}
+
+			$('#btn-export').click(function() {
+				if($('.tile').length == 0) {
+					alert('No tiles do export.');
+					return false;
+				} else {
+					let tilemap = [];
+					$('.tile').each(function() {
+						let tile = [];
+						$(this).find('.line').each(function() {
+							let upperBits = [];
+							let lowerBits = [];
+							$(this).find('.square').each(function() {
+								let color = $(this).data('color') >= 0 && $(this).data('color') <= 3
+									? $(this).data('color')
+									: 0;
+								upperBits.push(color.toString(2).padStart(2,0).substr(0,1));
+								lowerBits.push(color.toString(2).padStart(2,0).substr(1,1));
+							});
+							tile.push(parseInt(lowerBits.slice(0,4).join(''), 2).toString(16) + '' + parseInt(lowerBits.slice(4,8).join(''), 2).toString(16));
+							tile.push(parseInt(upperBits.slice(0,4).join(''), 2).toString(16) + '' + parseInt(upperBits.slice(4,8).join(''), 2).toString(16));
+						});
+						tilemap.push(tile);
+					});
+					$('#modalExport .modal-content code').html('');
+					tilemap.forEach(function(tile) {
+						$('#modalExport .modal-content code').append('db $' + tile.join(', $') + "<br>");
+					});
+					$('#modalExport').modal('show');
+				}
+			});
+
+			$('#btn-add-tile').click(function() {
+				let tileHtml = $(`
+					<div class="tile"><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div><div class="d-flex line justify-content-center"><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div><div class="square" data-color="0"></div></div>
+					</div>
+				`);
+				tileHtml.appendTo('#canvas-container');
+				$('#pixel-size-select').change();
+				colorRefresh();
+			});
+
+			$('#pixel-size-select').change(function() {
+				let size = $(this).val();
+				$('.square').css('width', size).css('height', size);
+			});
+
+			$('.color').click(function() {
+				selectedColor = $(this).data('color');
+				selectedTool = selectedTool == 'delete' ? 'pixel' : selectedTool;
+			});
+
+			$('.tool').change(function() {
+				selectedTool = $('.tool:checked').data('tool');
+			});
+
+			$('body').on('click', '.square', function() {
+				let bg = $(`.color[data-color=${selectedColor}]`).css('background');
+				switch(selectedTool) {
+					case 'pixel':
+						$(this).data('color', selectedColor).css('background', bg).data('color', selectedColor);
+						break;
+					case 'fill':
+						$(this).closest('.tile').find('.square').each(function() {
+							$(this).data('color', selectedColor).css('background', bg).data('color', selectedColor);
+						});
+						break;
+					case 'delete':
+						$(this).closest('.tile').remove();
+						break;
+				}
+			});
+
+			$('body').on('mouseover', '.square', function() {
+				let bg = $(`.color[data-color=${selectedColor}]`).css('background');
+				if(leftMouseButtonIsPressed) {
+					switch(selectedTool) {
+						case 'pixel':
+							$(this).data('color', selectedColor).css('background', bg).data('color', selectedColor);
+							break;
+					}
+				}
+			});
 		});
-	});
-</script>
+		
+		var leftMouseButtonIsPressed = false;
+
+		function setLeftButtonState(e) {
+		  leftMouseButtonIsPressed = e.buttons === undefined ? e.which === 1 : e.buttons === 1;
+		  //safari checks which instead of buttons
+		}
+
+		document.body.onmousedown = setLeftButtonState;
+		document.body.onmousemove = setLeftButtonState;
+		document.body.onmouseup = setLeftButtonState;
+	</script>
 </body>
 </html>
