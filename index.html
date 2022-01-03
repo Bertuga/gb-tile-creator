@@ -184,7 +184,7 @@
 				selectedTool = $('.tool:checked').data('tool');
 			});
 
-			$('body').on('click', '.square', function() {
+			$('body').on('mousedown', '.square', function() {
 				let bg = $(`.color[data-color=${selectedColor}]`).css('background');
 				switch(selectedTool) {
 					case 'pixel':
