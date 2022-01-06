@@ -114,6 +114,26 @@
 		</div>
 	</div>
 
+	<div class="modal" id="modalImport" tabindex="-1">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Import</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>ASM/Hexa (One tile per line):</p>
+					<textarea id="import" class="form-control"></textarea>
+					<sub>Wrong data will be interpreted as 0s.</sub>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="btn-proccess-import">Import</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
 	<script>
@@ -159,6 +179,44 @@
 					$('#modalExport').modal('show');
 				}
 			});
+
+			$('#btn-import').click(function() {
+				$('#modalImport').modal('show');
+			})
+
+			$('#btn-proccess-import').click(function() {
+				let textarea = $('#import').val().trim();
+				let tiles = [];
+				textarea.split("\n").forEach(function(line) {
+					if(line.match(/^db\s/)) {
+						line = line.replace(/^db\s/, '');
+					}
+					tiles.push(line.replace(/[^0-9a-fA-F]/g, '').padEnd(32,0));
+				});
+				tiles.forEach(function(tile) {
+					let tileHtml = $('<div class="tile"></div>');
+					tile = Array(...tile);
+					let lines = [];
+					for(let line = 1; line <= 8; line++) {
+						let lineHtml = $('<div class="d-flex line justify-content-center"></div>');
+						let lowerBit1 = tile.shift();
+						let lowerBit2 = tile.shift();
+						let upperBit1 = tile.shift();
+						let upperBit2 = tile.shift();
+						let lowerBits = Array(...parseInt(lowerBit1.concat(lowerBit2), 16).toString(2).padStart(8,0));
+						let upperBits = Array(...parseInt(upperBit1.concat(upperBit2), 16).toString(2).padStart(8,0));
+						for(let bit = 0; bit < 8; bit++) {
+							let color = parseInt([upperBits[bit].concat(lowerBits[bit])], 2);
+							lineHtml.append($(`<div class="square" data-color="${color}"></div>`));
+						}
+						tileHtml.append(lineHtml);
+					}
+					tileHtml.appendTo('#canvas-container');
+				});
+				$('#pixel-size-select').change();
+				colorRefresh();
+				$('#modalImport').modal('hide');
+			})
 
 			$('#btn-add-tile').click(function() {
 				let tileHtml = $(`
