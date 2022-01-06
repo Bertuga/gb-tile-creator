@@ -65,10 +65,10 @@
 					<div>
 						<p class="text-white">Palette</p>
 						<div class="btn-group w-100 green-palette" id="current-palette">
-							<button type="button" data-color="3" class="color btn">&nbsp;</button>
-							<button type="button" data-color="2" class="color btn">&nbsp;</button>
-							<button type="button" data-color="1" class="color btn">&nbsp;</button>
-							<button type="button" data-color="0" class="color btn">&nbsp;</button>
+							<button type="button" data-color="3" class="color color_3 btn">&nbsp;</button>
+							<button type="button" data-color="2" class="color color_2 btn">&nbsp;</button>
+							<button type="button" data-color="1" class="color color_1 btn">&nbsp;</button>
+							<button type="button" data-color="0" class="color color_0 btn">&nbsp;</button>
 						</div>
 					</div><br><br>
 					<div>
@@ -144,8 +144,8 @@
 			function colorRefresh() {
 				$('.square').each(function() {
 					let color = $(this).data('color') !== undefined ? $(this).data('color') : 0;
-					let bg = $(`.color[data-color=${color}]`).css('background');
-					$(this).data('color', selectedColor).css('background', bg).data('color', color);
+					let bg = $(`.color[data-color=${color}]`).css('background-color');
+					$(this).data('color', selectedColor).css('background-color', bg).data('color', color);
 				});
 			}
 
@@ -243,14 +243,14 @@
 			});
 
 			$('body').on('mousedown', '.square', function() {
-				let bg = $(`.color[data-color=${selectedColor}]`).css('background');
+				let bg = $(`.color[data-color=${selectedColor}]`).css('background-color');
 				switch(selectedTool) {
 					case 'pixel':
-						$(this).data('color', selectedColor).css('background', bg).data('color', selectedColor);
+						$(this).data('color', selectedColor).css('background-color', bg).data('color', selectedColor);
 						break;
 					case 'fill':
 						$(this).closest('.tile').find('.square').each(function() {
-							$(this).data('color', selectedColor).css('background', bg).data('color', selectedColor);
+							$(this).data('color', selectedColor).css('background-color', bg).data('color', selectedColor);
 						});
 						break;
 					case 'delete':
@@ -260,11 +260,11 @@
 			});
 
 			$('body').on('mouseover', '.square', function() {
-				let bg = $(`.color[data-color=${selectedColor}]`).css('background');
+				let bg = $(`.color[data-color=${selectedColor}]`).css('background-color');
 				if(leftMouseButtonIsPressed) {
 					switch(selectedTool) {
 						case 'pixel':
-							$(this).data('color', selectedColor).css('background', bg).data('color', selectedColor);
+							$(this).data('color', selectedColor).css('background-color', bg).data('color', selectedColor);
 							break;
 					}
 				}
