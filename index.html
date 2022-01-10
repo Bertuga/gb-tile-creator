@@ -105,7 +105,8 @@
 				</div>
 				<div class="modal-body">
 					<p>ASM:</p>
-					<code></code>
+					<p><button type="button" class="btn btn-sm" id="copy">Copy to clipboard</button></p>
+					<code id="code"></code>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -134,10 +135,12 @@
 		</div>
 	</div>
 
+	<footer class="text-center"><sub>Created by Bruno Bertuga - 2022</sub></footer>
+
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
 	<script>
-		let selectedColor = 4;
+		let selectedColor = 3;
 		let selectedTool = 'pixel';
 		let currentPalette = {};
 		$(document).ready(function() {
@@ -148,6 +151,13 @@
 					$(this).data('color', selectedColor).css('background-color', bg).data('color', color);
 				});
 			}
+
+			$('#copy').click(function() {
+				let text = $('#code').html();
+				navigator.clipboard.writeText(text).then(function() {
+				}, function(err) {
+				});
+			})
 
 			$('#btn-export').click(function() {
 				if($('.tile').length == 0) {
