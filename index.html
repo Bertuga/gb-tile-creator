@@ -153,7 +153,7 @@
 			}
 
 			$('#copy').click(function() {
-				let text = $('#code').html();
+				let text = $('#code').html().replace(/<br\s*[\/]?>/gi, "\r\n");
 				navigator.clipboard.writeText(text).then(function() {
 				}, function(err) {
 				});
